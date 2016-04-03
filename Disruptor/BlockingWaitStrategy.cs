@@ -33,7 +33,7 @@ namespace Disruptor
                     while ((availableSequence = cursor.Value) < sequence) // volatile read
                     {
                         barrier.CheckAlert();
-                        Monitor.Wait(_gate);
+                        Monitor.Wait(_gate, 1);
                     }
                 }
                 finally

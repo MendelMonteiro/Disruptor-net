@@ -19,7 +19,11 @@ namespace Disruptor
         /// </summary>
         public override long Value
         {
-            get { return Util.GetMinimumSequence(_sequencesRef.ReadFullFence()); }
+            get
+            {
+                var sequences = _sequencesRef.ReadFullFence();
+                return sequences.Length != 0 ? Util.GetMinimumSequence(sequences) : Sequencer.InitialCursorValue;
+            }
             set
             {
                 var sequences = _sequencesRef.ReadFullFence();

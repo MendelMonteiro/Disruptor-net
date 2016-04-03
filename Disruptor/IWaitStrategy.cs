@@ -27,6 +27,7 @@ namespace Disruptor
         /// <param name="timeout">timeout value to abort after.</param>
         /// <returns>the sequence that is available which may be greater than the requested sequence.</returns>
         /// <exception cref="AlertException">AlertException if the status of the Disruptor has changed.</exception>
+        [Obsolete]
         long WaitFor(long sequence, Sequence cursor, Sequence[] dependents, ISequenceBarrier barrier, TimeSpan timeout);
 
         /// <summary>

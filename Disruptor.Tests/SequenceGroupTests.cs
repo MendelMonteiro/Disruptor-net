@@ -9,7 +9,7 @@ namespace Disruptor.Tests
         public void ShouldReturnMaxSequenceWhenEmptyGroup()
         {
             var sequenceGroup = new SequenceGroup();
-            Assert.AreEqual(long.MaxValue, sequenceGroup.Value);
+            Assert.AreEqual(Sequencer.InitialCursorValue, sequenceGroup.Value);
         }
 
         [Test]
