@@ -83,7 +83,7 @@ namespace Disruptor
         /// Has the buffer got capacity to allocate another sequence.  This is a concurrent
         /// method so the response should only be taken as an indication of available capacity.
         /// </summary>
-        /// <param name="availableCapacity">availableCapacity in the buffer</param>
+        /// <param name="availableCapacity">requiredCapacity in the buffer</param>
         /// <returns>true if the buffer has the capacity to allocate the next sequence otherwise false.</returns>
         public bool HasAvailableCapacity(int availableCapacity)
         {
@@ -108,24 +108,24 @@ namespace Disruptor
        
         /// <summary>
         /// Attempt to claim the next event in sequence for publishing.  Will return the
-        /// number of the slot if there is at least <param name="availableCapacity"></param> slots
+        /// number of the slot if there is at least <param name="requiredCapacity"></param> slots
         /// available. 
         /// </summary>
-        /// <param name="availableCapacity"></param>
+        /// <param name="requiredCapacity"></param>
         /// <returns>the claimed sequence value</returns>
-        public long TryNext(int availableCapacity)
+        public long TryNext(int requiredCapacity)
         {
             if (_gatingSequences == null)
             {
                 throw new NullReferenceException("_gatingSequences must be set before claiming sequences");
             }
 
-            if (availableCapacity < 1)
+            if (requiredCapacity < 1)
             {
-                throw new ArgumentOutOfRangeException("availableCapacity", "Available capacity must be greater than 0");
+                throw new ArgumentOutOfRangeException("requiredCapacity", "Required capacity must be greater than 0");
             }
         
-            return _claimStrategy.CheckAndIncrement(availableCapacity, 1, _gatingSequences);
+            return _claimStrategy.CheckAndIncrement(requiredCapacity, 1, _gatingSequences);
         }
 
         /// <summary>
