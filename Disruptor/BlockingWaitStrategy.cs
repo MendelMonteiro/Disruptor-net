@@ -11,7 +11,7 @@ namespace Disruptor
     public sealed class BlockingWaitStrategy : IWaitStrategy
     {
         private readonly object _gate = new object();
-        private volatile int _numWaiters;
+        private readonly Sequence _numWaiters = new Sequence(0);
 
         /// <summary>
         /// Wait for the given sequence to be available
@@ -29,7 +29,7 @@ namespace Disruptor
                 Monitor.Enter(_gate);
                 try
                 {
-                    ++_numWaiters;
+                    _numWaiters.Value = _numWaiters.Value + 1;
                     while ((availableSequence = cursor.Value) < sequence) // volatile read
                     {
                         barrier.CheckAlert();
@@ -38,7 +38,7 @@ namespace Disruptor
                 }
                 finally
                 {
-                    --_numWaiters;
+                    _numWaiters.Value = _numWaiters.Value - 1;
                     Monitor.Exit(_gate);
                 }
             }
@@ -73,7 +73,7 @@ namespace Disruptor
                 Monitor.Enter(_gate);
                 try
                 {
-                    ++_numWaiters;
+                    _numWaiters.Value = _numWaiters.Value + 1;
                     while ((availableSequence = cursor.Value) < sequence)
                     {
                         barrier.CheckAlert();
@@ -86,7 +86,7 @@ namespace Disruptor
                 }
                 finally
                 {
-                    --_numWaiters;
+                    _numWaiters.Value = _numWaiters.Value - 1;
                     Monitor.Exit(_gate);
                 }
             }
@@ -107,7 +107,7 @@ namespace Disruptor
         /// </summary>
         public void SignalAllWhenBlocking()
         {
-            if(_numWaiters != 0)
+            if (!_numWaiters.CompareAndSet(0, 0))
             {
                 lock(_gate)
                 {
