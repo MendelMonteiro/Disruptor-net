@@ -24,6 +24,15 @@ namespace Disruptor.Tests
         }
 
         [Test]
+        public void ShouldNotFailIfTryingToRemoveNotExistingSequence()
+        {
+            SequenceGroup group = new SequenceGroup();
+            group.Add(new Sequence());
+            group.Add(new Sequence());
+            group.Remove(new Sequence());
+        }
+
+        [Test]
         public void ShouldReportTheMinimumSequenceForGroupOfTwo()
         {
             var sequenceThree = new Sequence(3L);
@@ -34,6 +43,23 @@ namespace Disruptor.Tests
             sequenceGroup.Add(sequenceThree);
 
             Assert.AreEqual(sequenceThree.Value, sequenceGroup.Value);
+        }
+
+        [Test]
+        public void ShouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
+        {
+            Sequence sequenceThree = new Sequence(3L);
+            Sequence sequenceSeven = new Sequence(7L);
+            SequenceGroup sequenceGroup = new SequenceGroup();
+
+            sequenceGroup.Add(sequenceThree);
+            sequenceGroup.Add(sequenceSeven);
+            sequenceGroup.Add(sequenceThree);
+
+            Assert.AreEqual(sequenceThree.Value, sequenceGroup.Value);
+            Assert.IsTrue(sequenceGroup.Remove(sequenceThree));
+            Assert.AreEqual(sequenceSeven.Value, sequenceGroup.Value);
+            Assert.AreEqual(1, sequenceGroup.Size);
         }
 
         [Test]

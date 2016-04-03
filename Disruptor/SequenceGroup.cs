@@ -73,37 +73,43 @@ namespace Disruptor
         /// <returns>true if the sequence was removed otherwise false.</returns>
         public bool Remove(Sequence sequence)
         {
-            var found = false;
             Sequence[] oldSequences;
             Sequence[] newSequences;
+            int numToRemove;
+
             do
             {
                 oldSequences = _sequencesRef.ReadFullFence();
+                numToRemove = 0;
+                foreach (var oldSequence in oldSequences)
+                {
+                    if (oldSequence == sequence)
+                    {
+                        numToRemove++;
+                    }
+                }
+              
+                if (0 == numToRemove)
+                {
+                    break;
+                }
+
                 int oldSize = oldSequences.Length;
-                newSequences = new Sequence[oldSize - 1];
+                newSequences = new Sequence[oldSize - numToRemove];
 
                 int pos = 0;
                 for (int i = 0; i < oldSize; i++)
                 {
                     var testSequence = oldSequences[i];
-                    if (sequence == testSequence && !found)
-                    {
-                        found = true;
-                    }
-                    else
+                    if (sequence != testSequence)
                     {
                         newSequences[pos++] = testSequence;
                     }
                 }
-
-                if (!found)
-                {
-                    break;
-                }
             }
             while (!_sequencesRef.AtomicCompareExchange(newSequences, oldSequences));
 
-            return found;
+            return numToRemove != 0;
         }
 
         /// <summary>
